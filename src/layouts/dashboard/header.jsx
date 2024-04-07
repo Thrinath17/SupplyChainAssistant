@@ -1,23 +1,16 @@
 import PropTypes from 'prop-types';
 
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import { useTheme } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
 
 import { useResponsive } from 'src/hooks/use-responsive';
 
-import { bgBlur } from 'src/theme/css';
-
 import Iconify from 'src/components/iconify';
 
-import Searchbar from './common/searchbar';
 import { NAV, HEADER } from './config-layout';
-import AccountPopover from './common/account-popover';
-import LanguagePopover from './common/language-popover';
-import NotificationsPopover from './common/notifications-popover';
 
 // ----------------------------------------------------------------------
 
@@ -34,15 +27,11 @@ export default function Header({ onOpenNav }) {
         </IconButton>
       )}
 
-      <Searchbar />
+      <Typography variant="h4" sx={{ my: 2, marginX:'auto'}}>
+        Supply Chain Design Companion
+      </Typography>
 
-      <Box sx={{ flexGrow: 1 }} />
 
-      <Stack direction="row" alignItems="center" spacing={1}>
-        <LanguagePopover />
-        <NotificationsPopover />
-        <AccountPopover />
-      </Stack>
     </>
   );
 
@@ -50,11 +39,11 @@ export default function Header({ onOpenNav }) {
     <AppBar
       sx={{
         boxShadow: 'none',
+        backgroundColor:theme.palette.background.default,
+        color: theme.palette.text.primary,
         height: HEADER.H_MOBILE,
+        alignItems:'center',
         zIndex: theme.zIndex.appBar + 1,
-        ...bgBlur({
-          color: theme.palette.background.default,
-        }),
         transition: theme.transitions.create(['height'], {
           duration: theme.transitions.duration.shorter,
         }),
@@ -67,6 +56,9 @@ export default function Header({ onOpenNav }) {
       <Toolbar
         sx={{
           height: 1,
+          width:'100%',
+          display:'flex',
+        justifyContent:'flex-start',
           px: { lg: 5 },
         }}
       >

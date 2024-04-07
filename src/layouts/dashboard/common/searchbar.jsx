@@ -1,12 +1,9 @@
 import { useState } from 'react';
 
-import Slide from '@mui/material/Slide';
 import Input from '@mui/material/Input';
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
-import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
-import ClickAwayListener from '@mui/material/ClickAwayListener';
 
 import { bgBlur } from 'src/theme/css';
 
@@ -21,12 +18,8 @@ const StyledSearchbar = styled('div')(({ theme }) => ({
   ...bgBlur({
     color: theme.palette.background.default,
   }),
-  top: 0,
-  left: 0,
   zIndex: 99,
-  width: '100%',
   display: 'flex',
-  position: 'absolute',
   alignItems: 'center',
   height: HEADER_MOBILE,
   padding: theme.spacing(0, 3),
@@ -40,32 +33,68 @@ const StyledSearchbar = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 export default function Searchbar() {
-  const [open, setOpen] = useState(false);
 
-  const handleOpen = () => {
-    setOpen(!open);
+  const [inputValue, setInputValue] = useState('');
+
+  // Function to update the state variable as the user types in the input field
+  const handleInputChange = (event) => {
+    event.preventDefault();
+    setInputValue(event.target.value);
   };
 
-  const handleClose = () => {
-    setOpen(false);
+  const handleSearchClick = () => {
+    fetchResults(inputValue);
   };
+
+  async function fetchResults(queryString) {
+    // Assuming you have a Flask route set up to handle this POST request
+    const response = await fetch('/search', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ query: queryString })
+    });
+    const data = await response.json();
+
+    displayResults(data);
+}
+
+function displayResults(data) {
+  const resultsDiv = document.getElementById('results');
+  // Clear existing results
+  resultsDiv.innerHTML = '';
+
+  // Ensure 'data.answer' is an array and then iterate over it
+  if (Array.isArray(data.answer)) {
+      // Create a fragment to append all messages
+      const fragment = document.createDocumentFragment();
+
+      data.answer.forEach(message => {
+          // Create paragraph for each message
+          const p = document.createElement('p');
+          p.textContent = `${message.role}: ${message.value}`;
+          fragment.appendChild(p);
+      });
+
+      // Append all messages to the results div
+      resultsDiv.appendChild(fragment);
+  } else {
+      console.error('Expected an array for data.answer, but did not find one.');
+  }
+}
 
   return (
-    <ClickAwayListener onClickAway={handleClose}>
-      <div>
-        {!open && (
-          <IconButton onClick={handleOpen}>
-            <Iconify icon="eva:search-fill" />
-          </IconButton>
-        )}
 
-        <Slide direction="down" in={open} mountOnEnter unmountOnExit>
+      <div>
           <StyledSearchbar>
             <Input
               autoFocus
               fullWidth
               disableUnderline
-              placeholder="Search…"
+              value={inputValue}
+              onChange={handleInputChange}
+              placeholder="Ask me..."
               startAdornment={
                 <InputAdornment position="start">
                   <Iconify
@@ -76,12 +105,10 @@ export default function Searchbar() {
               }
               sx={{ mr: 1, fontWeight: 'fontWeightBold' }}
             />
-            <Button variant="contained" onClick={handleClose}>
+            <Button variant="contained" onClick={handleSearchClick}>
               Search
             </Button>
           </StyledSearchbar>
-        </Slide>
       </div>
-    </ClickAwayListener>
   );
 }
